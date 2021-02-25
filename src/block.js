@@ -75,7 +75,7 @@ class Block {
         if (data && self.height > 0) {
           resolve(data)
         } else {
-          reject(Error("The block is Genesis Block"))
+          reject(Error("The block is Genesis Block."));
         }
       });
     }

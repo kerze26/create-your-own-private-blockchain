@@ -125,7 +125,20 @@ class Blockchain {
     submitStar(address, message, signature, star) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-            
+          const messageTime = parseInt(message.split(":")[1]);
+          const currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
+          if (messageTime + (5 * 60 * 1000) > currentTime) {
+            const verifyMessage = bitcoinMessage.verify(message, address, signature);
+            if (verifyMessage) {
+              const newBlock = new BlockClass.Block({"owner": address, "star": star});
+              const addNewBlock = await self._addBlock(newBlock);
+              resolve(addNewBlock);
+            } else {
+              reject(Error("Message not verified."))
+            }
+          } else {
+            reject(Error("The star can be add every less than 5 minutes"))
+          }
         });
     }
 
@@ -138,7 +151,12 @@ class Blockchain {
     getBlockByHash(hash) {
         let self = this;
         return new Promise((resolve, reject) => {
-           
+          const blockhash = self.chain.filter(i => i.hash === hash)[0];
+          if (blockhash) {
+            resolve(blockhash);
+          } else {
+            reject(Error("Null"));
+          }
         });
     }
 
