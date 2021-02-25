@@ -64,7 +64,7 @@ class Blockchain {
     _addBlock(block) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-          const height = await self.getChainHeight();
+          let height = await self.getChainHeight();
           // New Block
           block.height = self.height + 1;
           // Timestamp
@@ -195,7 +195,7 @@ class Blockchain {
               }
             }
           });
-          resolve(stars)
+          resolve(stars);
         });
     }
 
@@ -209,10 +209,33 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-            
+          let promises = [];
+          let chainIndex = 0;
+
+          self.chain.forEach(i => {
+            promises.push(i.validate());
+            if(i.height > 0) {
+                let previousBlockHash = i.previousBlockHash;
+                let blockHash = chain[chainIndex-1].hash;
+                if(blockHash != previousBlockHash){
+                    errorLog.push(`Error Block heigh: ${i.height} previous hash don't match.`);
+                }
+            }
+            chainIndex++;
+          });
+
+          Promise.all(promises).then((results) => {
+            chainIndex = 0;
+            results.forEach(valid => {
+                if(!valid){
+                    errorLog.push(`Error Block heigh: ${self.chain[chainIndex].height} has been tampered.`);
+                }
+                chainIndex++;
+            });
+            resolve(errorLog);
+        }).catch((err) => reject(Error(err)));
         });
     }
-
 }
 
 module.exports.Blockchain = Blockchain;   
