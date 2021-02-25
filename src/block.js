@@ -11,6 +11,7 @@
 
 const SHA256 = require('crypto-js/sha256');
 const hex2ascii = require('hex2ascii');
+const { resolve } = require('path');
 
 class Block {
 
@@ -38,18 +39,18 @@ class Block {
     validate() {
         let self = this;
         return new Promise((resolve, reject) => {
-            // Save in auxiliary variable the current block hash
-            const currentHash = self.hash;
-            // Recalculate the hash of the Block
-            const reHash = SHA256(JSON.stringify(self)).toString();
-            // Comparing if the hashes changed
-            if (currentHash !== reHash) {
-            // Returning the Block is not valid
-              resolve(false);
-            } else {
-            // Returning the Block is valid
-              reject(true);
-            }
+          // Save in auxiliary variable the current block hash
+          const currentHash = self.hash;
+          // Recalculate the hash of the Block
+          const reHash = SHA256(JSON.stringify(self)).toString();
+          // Comparing if the hashes changed
+          if (currentHash !== reHash) {
+          // Returning the Block is not valid
+            resolve(false);
+          } else {
+          // Returning the Block is valid
+            reject(true);
+          }
         });
     }
 
@@ -63,17 +64,22 @@ class Block {
      *     or Reject with an error.
      */
     getBData() {
+      let self = this;
+      return new Promise((resolve, reject) => {
         // Getting the encoded data saved in the Block
+        const encodedData = this.body;
         // Decoding the data to retrieve the JSON representation of the object
+        const decodeData = hex2ascii(encodedData);
         // Parse the data to an object to be retrieve.
-
+        const data = JSON.parse(decodeData);
         // Resolve with the data if the object isn't the Genesis block
-
+        if (data && self.height > 0) {
+          resolve(data)
+        } else {
+          reject(Error("The block is Genesis Block"))
+        }
+      });
     }
-
 }
 
 module.exports.Block = Block;                    // Exposing the Block class as a module
-
-let newBlock = new Block("example data")
-console.log(newBlock.validate());
