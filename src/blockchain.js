@@ -98,7 +98,10 @@ class Blockchain {
      */
     requestMessageOwnershipVerification(address) {
         return new Promise((resolve) => {
-            
+          // The message format to be sign using wallet
+          // <WALLET_ADRESS>:${new Date().getTime().toString().slice(0,-3)}:starRegistry;
+          const messageFormat = `${address}:${new Date().getTime().toString().slice(0,-3)}:starRegistry`
+          resolve(messageFormat);
         });
     }
 
@@ -187,6 +190,3 @@ class Blockchain {
 }
 
 module.exports.Blockchain = Blockchain;   
-
-const newBlockchain = new Blockchain();
-newBlockchain._addBlock();
