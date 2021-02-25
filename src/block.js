@@ -39,13 +39,17 @@ class Block {
         let self = this;
         return new Promise((resolve, reject) => {
             // Save in auxiliary variable the current block hash
-                                            
+            const currentHash = self.hash;
             // Recalculate the hash of the Block
+            const reHash = SHA256(JSON.stringify(self)).toString();
             // Comparing if the hashes changed
+            if (currentHash !== reHash) {
             // Returning the Block is not valid
-            
+              resolve(false);
+            } else {
             // Returning the Block is valid
-
+              reject(true);
+            }
         });
     }
 
@@ -70,3 +74,6 @@ class Block {
 }
 
 module.exports.Block = Block;                    // Exposing the Block class as a module
+
+let newBlock = new Block("example data")
+console.log(newBlock.validate());
